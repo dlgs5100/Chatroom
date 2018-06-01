@@ -67,17 +67,21 @@ public class Server extends Application {
 		@Override
 		public void run() {
 			try {
-				DataInputStream inputFromUser1 = new DataInputStream(User1.getInputStream());
-				DataOutputStream outputToUser1 = new DataOutputStream(User1.getOutputStream());
-				DataInputStream inputFromUser2 = new DataInputStream(User2.getInputStream());
-				DataOutputStream outputToUser2 = new DataOutputStream(User2.getOutputStream());
+				DataInputStream is1 = new DataInputStream(User1.getInputStream());
+				DataInputStream is2 = new DataInputStream(User2.getInputStream());
+				DataOutputStream os1 = new DataOutputStream(User1.getOutputStream());
+				DataOutputStream os2 = new DataOutputStream(User2.getOutputStream());
+				BufferedReader inputFromUser1 = new BufferedReader(new InputStreamReader(is1, "UTF-8"));
+				BufferedReader inputFromUser2 = new BufferedReader(new InputStreamReader(is2, "UTF-8"));
+				PrintWriter outputToUser1 = new PrintWriter(os1);
+				PrintWriter outputToUser2 = new PrintWriter(os2);
 
 				new Thread(() -> {
-					String messageUser1;
 					try {
 						while (true) {
-							messageUser1 = inputFromUser1.readUTF();
-							outputToUser2.writeUTF(messageUser1);
+							String fromUser1 = inputFromUser1.readLine();
+							outputToUser2.write(fromUser1+"\n");
+							outputToUser2.flush();
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -85,11 +89,11 @@ public class Server extends Application {
 				}).start();
 
 				new Thread(() -> {
-					String messageUser2;
 					try {
 						while (true) {
-							messageUser2 = inputFromUser2.readUTF();
-							outputToUser1.writeUTF(messageUser2);
+							String fromUser2 = inputFromUser2.readLine();
+							outputToUser1.write(fromUser2+"\n");
+							outputToUser1.flush();
 						}
 					} catch (IOException e) {
 						e.printStackTrace();

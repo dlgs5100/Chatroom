@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
@@ -20,12 +19,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-
+import javafx.scene.text.Font;
 
 public class Client extends Application {
-
-	PrintWriter toServer;
-	BufferedReader fromServer;
+	private static final String EMPTY_STRING = "";
+	private PrintWriter toServer;
+	private BufferedReader fromServer;
 
 	@Override
 	public void start(Stage primaryStage) throws IOException {
@@ -39,12 +38,15 @@ public class Client extends Application {
 		paneForTextField.setCenter(tf);
 
 		BorderPane mainPane = new BorderPane();
-
 		ScrollPane messagePane = new ScrollPane();
+		messagePane.setStyle("-fx-border-color: red");
 		VBox vbox = new VBox();
+		// Avoid the blocking scorll bar
 		vbox.prefWidthProperty().bind(primaryStage.widthProperty().subtract(40));
 		messagePane.setContent(vbox);
-		mainPane.setCenter(new ScrollPane(vbox));
+		// ScrollPane auto scroll
+		messagePane.vvalueProperty().bind(vbox.heightProperty());
+		mainPane.setCenter(messagePane);
 		mainPane.setBottom(paneForTextField);
 
 		Scene scene = new Scene(mainPane, 520, 215);
@@ -56,38 +58,52 @@ public class Client extends Application {
 			Socket socket = new Socket("localhost", 8000);
 			DataInputStream is = new DataInputStream(socket.getInputStream());
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
-			toServer= new PrintWriter(os);
+			toServer = new PrintWriter(os);
 			fromServer = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 
 		tf.setOnAction(e -> {
-			String messageToServer = tf.getText().trim().toString();
-			Label label = new Label(messageToServer);
-			HBox hbox = new HBox();
-			hbox.getChildren().add(label);
-			hbox.setAlignment(Pos.CENTER_RIGHT);
-			vbox.getChildren().add(hbox);
-			tf.clear();
-			
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("message", messageToServer);
-			map.put("nowTime", getDateTime());
-			JSONObject jsonObject = new JSONObject(map);
-			toServer.write(jsonObject.toString()+"\n");
-			toServer.flush();
+			if (!tf.getText().trim().isEmpty()) {
+				String messageToServer = tf.getText().trim().toString();
+				Label labelMessage = new Label(messageToServer);
+				Label labelTime = new Label(getDateTime());
+				labelMessage.setFont(new Font(20));
+				labelTime.setFont(new Font(10));
+
+				// Vbox always align to left, add hbox to align right
+				HBox hboxMessage = new HBox();
+				hboxMessage.setAlignment(Pos.CENTER_RIGHT);
+				hboxMessage.getChildren().add(labelMessage);
+				HBox hboxTime = new HBox();
+				hboxTime.setAlignment(Pos.CENTER_RIGHT);
+				hboxTime.getChildren().add(labelTime);
+
+				vbox.getChildren().add(hboxMessage);
+				vbox.getChildren().add(hboxTime);
+				tf.clear();
+
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("message", messageToServer);
+				map.put("nowTime", getDateTime());
+				JSONObject jsonObject = new JSONObject(map);
+				toServer.write(jsonObject.toString() + "\n");
+				toServer.flush();
+			}
 		});
-		
+
 		new Thread(() -> {
 			String messageFromServer = null;
 			try {
 				while (true) {
 					messageFromServer = fromServer.readLine();
 					JSONObject jsonObject = new JSONObject(messageFromServer);
-					Label label = new Label();
-					updateLabelLater(label,jsonObject.get("message").toString());
-					updateVBoxLater(vbox,label);
+					Label labelMessage = new Label();
+					Label labelTime = new Label();
+					updateLabelLater(labelMessage, jsonObject.get("message").toString(), 20);
+					updateLabelLater(labelTime, jsonObject.get("nowTime").toString(), 10);
+					updateVBoxLater(vbox, labelMessage, labelTime);
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -96,27 +112,38 @@ public class Client extends Application {
 			}
 		}).start();
 	}
-	public void updateLabelLater(final Label label, final String text) {
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-                label.setText(text);
-            }
-        });
-    }
-	public void updateVBoxLater(final VBox vbox, final Label label) {
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-                vbox.getChildren().add(label);
-            }
-        });
-    }
-	public static void main(String[] args) {
-		launch(args);
+
+	// Update without UI thread, if using Platform.runLater in lambda, variables
+	// should be final.
+	// So using another function to implement Platform.runLater
+	public void updateLabelLater(final Label label, final String text, int size) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				label.setText(text);
+				label.setFont(new Font(size));
+			}
+		});
 	}
-	public String getDateTime(){
+
+	public String getDateTime() {
 		SimpleDateFormat sdFormat = new SimpleDateFormat("MM/dd hh:mm");
 		Date date = new Date();
 		String strDate = sdFormat.format(date);
 		return strDate;
+	}
+
+	public void updateVBoxLater(final VBox vbox, final Label label1, final Label label2) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				vbox.getChildren().add(label1);
+				vbox.getChildren().add(label2);
+			}
+		});
+	}
+
+	public static void main(String[] args) {
+		launch(args);
 	}
 }

@@ -1,3 +1,4 @@
+package application;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
@@ -143,7 +144,7 @@ public class Client extends Application {
 		});
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		launch(args);
-	}
+	}*/
 }

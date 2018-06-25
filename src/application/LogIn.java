@@ -6,10 +6,10 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-public class ClientLogIn extends Application {
+public class LogIn extends Application {
 
     private Stage primaryStage;
-    private BorderPane rootLayout;
+    private BorderPane rootLogInLayout;
 
     @Override
     public void start(Stage primaryStage) {
@@ -22,10 +22,10 @@ public class ClientLogIn extends Application {
     public void initRootLayout() {
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(ClientLogIn.class.getClassLoader().getResource("RootLayout.fxml"));
-            rootLayout = (BorderPane) loader.load();
+            loader.setLocation(LogIn.class.getClassLoader().getResource("RootLogInLayout.fxml"));
+            rootLogInLayout = (BorderPane) loader.load();
 
-            Scene scene = new Scene(rootLayout);
+            Scene scene = new Scene(rootLogInLayout);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
@@ -36,10 +36,10 @@ public class ClientLogIn extends Application {
     public void showLogInLayout() {
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(ClientLogIn.class.getClassLoader().getResource("LogInLayout.fxml"));
+            loader.setLocation(LogIn.class.getClassLoader().getResource("LogInLayout.fxml"));
             AnchorPane LogInLayout = (AnchorPane) loader.load();
 
-            rootLayout.setCenter(LogInLayout);
+            rootLogInLayout.setCenter(LogInLayout);
             
             LogInLayoutController controller = loader.getController();
             controller.setStage(primaryStage);

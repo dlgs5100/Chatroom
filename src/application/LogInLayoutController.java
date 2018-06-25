@@ -17,12 +17,11 @@ public class LogInLayoutController {
 	private TextField tfPassword;
 	
 	private Stage stage;
-	private ClientLogIn clientLogIn;
 	
 	@FXML
 	private void handleAnonymous() {
 		try {  
-            Client main = new Client();  
+			Chatroom main = new Chatroom();  
             main.start(new Stage()); 
             stage.hide();
         } catch (Exception e) {  
@@ -32,14 +31,13 @@ public class LogInLayoutController {
 	@FXML
 	private void handleSignIn() {
 		try {  
-            Client main = new Client();  
+			Chatroom main = new Chatroom();  
             main.start(new Stage()); 
             stage.hide();
         } catch (Exception e) {  
             e.printStackTrace();  
         }  
 	}
-	
 
 	public void setStage(Stage stage) {
         this.stage = stage;

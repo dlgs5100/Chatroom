@@ -11,7 +11,7 @@
    <children>
       <AnchorPane layoutY="262.0" prefHeight="42.0" prefWidth="700.0">
          <children>
-            <Button fx:id="btnBrowsing" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#handleBtnBrowsing" text="Browsing" />
+            <Button fx:id="btnSelect" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#handleBtnSelect" text="Select" />
             <Text layoutX="110.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Enter a message:">
                <font>
                   <Font size="18.0" />

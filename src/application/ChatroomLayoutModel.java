@@ -36,7 +36,12 @@ public class ChatroomLayoutModel {
 				while (true) {
 					messageFromServer = fromServer.readLine();
 					JSONObject jsonObject = new JSONObject(messageFromServer);
-					controller.updateLabelLater(jsonObject.get("message").toString(), 20, jsonObject.get("nowTime").toString(), 10);
+					//System.out.println(messageFromServer);
+					if (messageFromServer.indexOf("image") != -1) 
+						//System.out.println(jsonObject.get("image"));
+			            controller.updateImageLater(jsonObject.get("image").toString());
+					else
+						controller.updateLabelLater(jsonObject.get("message").toString(), 20, jsonObject.get("nowTime").toString(), 10);
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();

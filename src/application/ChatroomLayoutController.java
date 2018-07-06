@@ -7,53 +7,27 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileSystemView;
 import javax.xml.bind.DatatypeConverter;
-
 import org.json.JSONObject;
-import org.json.JSONArray;
 import org.json.JSONException;
-
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-
 import javafx.scene.control.ScrollPane;
 
 public class ChatroomLayoutController {
@@ -74,6 +48,8 @@ public class ChatroomLayoutController {
 	private GraphicsContext gc;
 	private ByteArrayOutputStream baos;
 	
+	private static int MESSAGE_SIZE = 20;
+	private static int TIME_SIZE = 10;
 	private static int IMAGE_RATIO = 5;
 
 	@FXML
@@ -89,10 +65,12 @@ public class ChatroomLayoutController {
 			);
 		
 		file = fchooser.showOpenDialog(null);
+		//Determine the file format
 		imageFormat = FileSystemView.getFileSystemView().getSystemTypeDescription(file).substring(0, 3);
 		
 		try{
 			BufferedImage bufferedImage = ImageIO.read(file);
+			//Image ByteArrayOutputStream
 			baos = new ByteArrayOutputStream();
 		    ImageIO.write(bufferedImage, imageFormat, baos);
 		    
@@ -103,19 +81,28 @@ public class ChatroomLayoutController {
 			ex.printStackTrace();
 		}
 		
+		//Show image myself
 		canvas = new Canvas(image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
-		
 		gc = canvas.getGraphicsContext2D();
 		gc.drawImage(image,0,0,image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
-		HBox hboxMessage = new HBox();
-		hboxMessage.setAlignment(Pos.CENTER_RIGHT);
-		hboxMessage.getChildren().add(canvas);
+		HBox hboxImage = new HBox();
+		hboxImage.setAlignment(Pos.CENTER_RIGHT);
+		hboxImage.getChildren().add(canvas);
+		//Show time myself
+		Label labelTime = new Label(getDateTime());
+		labelTime.setFont(new Font(TIME_SIZE));
+		HBox hboxTime = new HBox();
+		hboxTime.setAlignment(Pos.CENTER_RIGHT);
+		hboxTime.getChildren().add(labelTime);
 	
-		vbox.getChildren().add(hboxMessage);
+		vbox.getChildren().add(hboxImage);
+		vbox.getChildren().add(hboxTime);
 		
 		JSONObject jsonObject = new JSONObject();
 		try {
+			//Json doesn't support byte array, so encode to Base64
 			jsonObject.put("image", DatatypeConverter.printBase64Binary(baos.toByteArray()));
+			jsonObject.put("nowTime", getDateTime());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -126,15 +113,17 @@ public class ChatroomLayoutController {
 	public void handleEnterMessage(ActionEvent event) {
 		if (!tfEnterMessage.getText().trim().isEmpty()) {
 			String messageToServer = tfEnterMessage.getText().trim().toString();
-			Label labelMessage = new Label(messageToServer);
-			Label labelTime = new Label(getDateTime());
-			labelMessage.setFont(new Font(20));
-			labelTime.setFont(new Font(10));
-
+			
 			// Vbox always align to left, add hbox to align right
+			//Show message myself
+			Label labelMessage = new Label(messageToServer);
+			labelMessage.setFont(new Font(MESSAGE_SIZE));
 			HBox hboxMessage = new HBox();
 			hboxMessage.setAlignment(Pos.CENTER_RIGHT);
 			hboxMessage.getChildren().add(labelMessage);
+			//Show time myself
+			Label labelTime = new Label(getDateTime());
+			labelTime.setFont(new Font(TIME_SIZE));
 			HBox hboxTime = new HBox();
 			hboxTime.setAlignment(Pos.CENTER_RIGHT);
 			hboxTime.getChildren().add(labelTime);
@@ -143,10 +132,14 @@ public class ChatroomLayoutController {
 			vbox.getChildren().add(hboxTime);
 			tfEnterMessage.clear();
 
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("message", messageToServer);
-			map.put("nowTime", getDateTime());
-			JSONObject jsonObject = new JSONObject(map);
+			JSONObject jsonObject = new JSONObject();
+			try {
+				jsonObject.put("message", messageToServer);
+				jsonObject.put("nowTime", getDateTime());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			model.sendServer(jsonObject);
 		}
 	}
@@ -157,27 +150,29 @@ public class ChatroomLayoutController {
 		// ScrollPane auto scroll
 		messagePane.vvalueProperty().bind(vbox.heightProperty());
 	}
-	public void updateLabelLater(final String text1, int size1, final String text2, int size2) {
+	public void updateLabelLater(final String message, final String time) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				Label label1 = new Label(text1);
-				Label label2 = new Label(text2);
-				label1.setFont(new Font(size1));
-				label2.setFont(new Font(size2));
+				Label lbMessage = new Label(message);
+				Label lbTime = new Label(time);
+				lbMessage.setFont(new Font(MESSAGE_SIZE));
+				lbTime.setFont(new Font(TIME_SIZE));
 
-				vbox.getChildren().add(label1);
-				vbox.getChildren().add(label2);
+				vbox.getChildren().add(lbMessage);
+				vbox.getChildren().add(lbTime);
 			}
 		});
 	}
-	public void updateImageLater(final String imageData) {
+	public void updateImageLater(final String imageData, final String time) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
+				//Decode from Base64
 				byte[] base64Decoded = DatatypeConverter.parseBase64Binary(imageData);			
 				try {
 					BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(base64Decoded));
+					//A temp ByteArrayOutputStream(unuse)
 					baos = new ByteArrayOutputStream();
 					ImageIO.write(bufferedImage, "jpg", baos);
 				    
@@ -190,7 +185,12 @@ public class ChatroomLayoutController {
 				canvas = new Canvas(image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
 				gc = canvas.getGraphicsContext2D();
 				gc.drawImage(image,0,0,image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
+				
+				Label lbTime = new Label(time);
+				lbTime.setFont(new Font(TIME_SIZE));
+				
 				vbox.getChildren().add(canvas);
+				vbox.getChildren().add(lbTime);
 			}
 		});
 	}

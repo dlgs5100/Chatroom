@@ -11,8 +11,6 @@ import java.net.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javafx.scene.control.Label;
-
 public class ChatroomLayoutModel {
 	
 	private ChatroomLayoutController controller;
@@ -36,17 +34,15 @@ public class ChatroomLayoutModel {
 				while (true) {
 					messageFromServer = fromServer.readLine();
 					JSONObject jsonObject = new JSONObject(messageFromServer);
-					//System.out.println(messageFromServer);
 					if (messageFromServer.indexOf("image") != -1) 
-						//System.out.println(jsonObject.get("image"));
-			            controller.updateImageLater(jsonObject.get("image").toString());
+			            controller.updateImageLater(jsonObject.get("image").toString(), jsonObject.get("nowTime").toString());
 					else
-						controller.updateLabelLater(jsonObject.get("message").toString(), 20, jsonObject.get("nowTime").toString(), 10);
+						controller.updateLabelLater(jsonObject.get("message").toString(), jsonObject.get("nowTime").toString());
 				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			} catch (JSONException e1) {
+			} catch (IOException e1) {
 				e1.printStackTrace();
+			} catch (JSONException e2) {
+				e2.printStackTrace();
 			}
 		}).start();
     }

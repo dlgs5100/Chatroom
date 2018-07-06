@@ -1,6 +1,7 @@
 package application;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -51,6 +52,9 @@ public class ChatroomLayoutController {
 	private static int MESSAGE_SIZE = 20;
 	private static int TIME_SIZE = 10;
 	private static int IMAGE_RATIO = 5;
+	
+	private String userName = "<Me>";
+	private String targetName = "<Anonymous>";
 
 	@FXML
 	public void handleBtnSelect(ActionEvent event) {
@@ -80,21 +84,30 @@ public class ChatroomLayoutController {
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
-		
+		//Show name myself
+		Label labelName = new Label(userName);
+		labelName.setFont(new Font(MESSAGE_SIZE));
+		HBox hboxName = new HBox();
+		hboxName.setAlignment(Pos.CENTER_RIGHT);
+		hboxName.setPadding(new Insets(10, 0, 5, 0));	//(Up, Right, Down, Left)
+		hboxName.getChildren().add(labelName);
 		//Show image myself
 		canvas = new Canvas(image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
 		gc = canvas.getGraphicsContext2D();
 		gc.drawImage(image,0,0,image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
 		HBox hboxImage = new HBox();
 		hboxImage.setAlignment(Pos.CENTER_RIGHT);
+		hboxImage.setPadding(new Insets(0, 50, 0, 0));
 		hboxImage.getChildren().add(canvas);
 		//Show time myself
 		Label labelTime = new Label(getDateTime());
 		labelTime.setFont(new Font(TIME_SIZE));
 		HBox hboxTime = new HBox();
 		hboxTime.setAlignment(Pos.CENTER_RIGHT);
+		hboxTime.setPadding(new Insets(0, 10, 10, 0));
 		hboxTime.getChildren().add(labelTime);
 	
+		vbox.getChildren().add(hboxName);
 		vbox.getChildren().add(hboxImage);
 		vbox.getChildren().add(hboxTime);
 		
@@ -115,19 +128,29 @@ public class ChatroomLayoutController {
 			String messageToServer = tfEnterMessage.getText().trim().toString();
 			
 			// Vbox always align to left, add hbox to align right
+			//Show name myself
+			Label labelName = new Label(userName);
+			labelName.setFont(new Font(MESSAGE_SIZE));
+			HBox hboxName = new HBox();
+			hboxName.setAlignment(Pos.CENTER_RIGHT);
+			hboxName.setPadding(new Insets(10, 0, 5, 0));	//(Up, Right, Down, Left)
+			hboxName.getChildren().add(labelName);
 			//Show message myself
 			Label labelMessage = new Label(messageToServer);
 			labelMessage.setFont(new Font(MESSAGE_SIZE));
 			HBox hboxMessage = new HBox();
 			hboxMessage.setAlignment(Pos.CENTER_RIGHT);
+			hboxMessage.setPadding(new Insets(0, 50, 0, 0));
 			hboxMessage.getChildren().add(labelMessage);
 			//Show time myself
 			Label labelTime = new Label(getDateTime());
 			labelTime.setFont(new Font(TIME_SIZE));
 			HBox hboxTime = new HBox();
 			hboxTime.setAlignment(Pos.CENTER_RIGHT);
+			hboxTime.setPadding(new Insets(0, 10, 10, 0));
 			hboxTime.getChildren().add(labelTime);
 
+			vbox.getChildren().add(hboxName);
 			vbox.getChildren().add(hboxMessage);
 			vbox.getChildren().add(hboxTime);
 			tfEnterMessage.clear();
@@ -154,13 +177,30 @@ public class ChatroomLayoutController {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				Label lbMessage = new Label(message);
-				Label lbTime = new Label(time);
-				lbMessage.setFont(new Font(MESSAGE_SIZE));
-				lbTime.setFont(new Font(TIME_SIZE));
+				Label labelName = new Label(targetName);
+				labelName.setFont(new Font(MESSAGE_SIZE));
+				HBox hboxName = new HBox();
+				hboxName.setAlignment(Pos.CENTER_LEFT);
+				hboxName.setPadding(new Insets(10, 0, 5, 0));	//(Up, Right, Down, Left)
+				hboxName.getChildren().add(labelName);
+				
+				Label labelMessage = new Label(message);
+				labelMessage.setFont(new Font(MESSAGE_SIZE));
+				HBox hboxMessage = new HBox();
+				hboxMessage.setAlignment(Pos.CENTER_LEFT);
+				hboxMessage.setPadding(new Insets(0, 0, 0, 50));
+				hboxMessage.getChildren().add(labelMessage);
+				
+				Label labelTime = new Label(time);
+				labelTime.setFont(new Font(TIME_SIZE));
+				HBox hboxTime = new HBox();
+				hboxTime.setAlignment(Pos.CENTER_LEFT);
+				hboxTime.setPadding(new Insets(0, 0, 10, 10));
+				hboxTime.getChildren().add(labelTime);
 
-				vbox.getChildren().add(lbMessage);
-				vbox.getChildren().add(lbTime);
+				vbox.getChildren().add(hboxName);
+				vbox.getChildren().add(hboxMessage);
+				vbox.getChildren().add(hboxTime);
 			}
 		});
 	}
@@ -185,12 +225,28 @@ public class ChatroomLayoutController {
 				canvas = new Canvas(image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
 				gc = canvas.getGraphicsContext2D();
 				gc.drawImage(image,0,0,image.getWidth()/IMAGE_RATIO,image.getHeight()/IMAGE_RATIO);
+				HBox hboxImage = new HBox();
+				hboxImage.setAlignment(Pos.CENTER_LEFT);
+				hboxImage.setPadding(new Insets(0, 0, 0, 50));
+				hboxImage.getChildren().add(canvas);
 				
-				Label lbTime = new Label(time);
-				lbTime.setFont(new Font(TIME_SIZE));
+				Label labelName = new Label(targetName);
+				labelName.setFont(new Font(MESSAGE_SIZE));
+				HBox hboxName = new HBox();
+				hboxName.setAlignment(Pos.CENTER_LEFT);
+				hboxName.setPadding(new Insets(10, 0, 5, 0));	//(Up, Right, Down, Left)
+				hboxName.getChildren().add(labelName);
 				
-				vbox.getChildren().add(canvas);
-				vbox.getChildren().add(lbTime);
+				Label labelTime = new Label(time);
+				labelTime.setFont(new Font(TIME_SIZE));
+				HBox hboxTime = new HBox();
+				hboxTime.setAlignment(Pos.CENTER_LEFT);
+				hboxTime.setPadding(new Insets(0, 0, 10, 10));
+				hboxTime.getChildren().add(labelTime);
+				
+				vbox.getChildren().add(hboxName);
+				vbox.getChildren().add(hboxImage);
+				vbox.getChildren().add(hboxTime);
 			}
 		});
 	}

@@ -114,6 +114,7 @@ public class ChatroomLayoutController {
 		JSONObject jsonObject = new JSONObject();
 		try {
 			//Json doesn't support byte array, so encode to Base64
+			jsonObject.put("userName", userName);
 			jsonObject.put("image", DatatypeConverter.printBase64Binary(baos.toByteArray()));
 			jsonObject.put("nowTime", getDateTime());
 		} catch (JSONException e) {
@@ -157,6 +158,7 @@ public class ChatroomLayoutController {
 
 			JSONObject jsonObject = new JSONObject();
 			try {
+				jsonObject.put("userName", userName);
 				jsonObject.put("message", messageToServer);
 				jsonObject.put("nowTime", getDateTime());
 			} catch (JSONException e) {
@@ -173,7 +175,7 @@ public class ChatroomLayoutController {
 		// ScrollPane auto scroll
 		messagePane.vvalueProperty().bind(vbox.heightProperty());
 	}
-	public void updateLabelLater(final String message, final String time) {
+	public void updateLabelLater(final String targetName, final String message, final String time) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -204,7 +206,7 @@ public class ChatroomLayoutController {
 			}
 		});
 	}
-	public void updateImageLater(final String imageData, final String time) {
+	public void updateImageLater(final String targetName, final String imageData, final String time) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -262,5 +264,11 @@ public class ChatroomLayoutController {
     }
 	public void setModel(ChatroomLayoutModel model) {
 		this.model = model;
+	}
+	public void setUserName(String userName) {
+		if(userName != null && !userName.equals(""))
+			this.userName = userName;
+		else
+			System.out.println("T:"+userName);
 	}
 }

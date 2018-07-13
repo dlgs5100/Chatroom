@@ -13,17 +13,21 @@ public class Chatroom extends Application {
     private ChatroomLayoutModel model;
     private ChatroomLayoutController controller;
     
+    private String userName;
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Client");
-        model = new ChatroomLayoutModel();
+        model = new ChatroomLayoutModel(userName);
         model.setConnection();
         initRootLayout();
         showChatroomLayout();
     }
-
+    
+    public Chatroom() {}
+    public Chatroom(String userName) {this.userName = userName;}
+    
     public void initRootLayout() {
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -51,6 +55,7 @@ public class Chatroom extends Application {
             controller.setStage(primaryStage);
             controller.setScroll();
             controller.setModel(model);
+            controller.setUserName(userName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,5 +64,4 @@ public class Chatroom extends Application {
     public Stage getPrimaryStage() {
         return primaryStage;
     }
-
 }

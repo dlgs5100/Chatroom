@@ -31,7 +31,7 @@ public class LogInLayoutController {
 	@FXML
 	private void handleSignIn() {
 		try {  
-			Chatroom main = new Chatroom();  
+			Chatroom main = new Chatroom(tfAccount.getText());  
             main.start(new Stage()); 
             stage.hide();
         } catch (Exception e) {  
